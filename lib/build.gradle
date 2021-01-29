@@ -1,0 +1,28 @@
+plugins {
+    id 'java-library'
+}
+
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
+
+repositories {
+    jcenter()
+    maven { url "http://jars.interlis.ch" }    
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.2'
+    testImplementation 'org.orbisgis:h2gis:1.5.0'
+    testImplementation 'ch.interlis:ili2h2gis:4.4.5'
+    testImplementation 'ch.ehi:ehibasics:1.4.0' 
+    testImplementation 'commons-io:commons-io:2.8.0'
+    
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+
+    api 'org.locationtech.jts:jts-core:1.15.1'
+
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
