@@ -22,5 +22,5 @@ jobs:
       - name: Build 
         run: ./gradlew clean build
       - name: Publish Jar
-        if: success() && github.ref == 'refs/heads/master'
+        if: ${{ success() }} && github.ref == 'refs/heads/master'
         run: ./gradlew bintrayUpload
