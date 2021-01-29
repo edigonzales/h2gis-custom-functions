@@ -5,13 +5,22 @@ on: [push]
 jobs:
   build:
     env:
-      DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
-      DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}} 
+      bintrayUser: ${{secrets.bintrayUser}}
+      bintrayKey: ${{secrets.bintrayKey}}
       BUILD_NUMBER: ${{ github.run_number }}
     runs-on: ubuntu-latest
     steps:
       - name: Print new build number
         run: echo "Build number is $BUILD_NUMBER"
       - uses: actions/checkout@v1
+      - uses: actions/cache@v1
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
       - name: Build 
         run: ./gradlew clean build
+      - name: Publish Jar
+        if: success() && github.ref == 'refs/heads/master'
+        run: ./gradlew bintrayUpload

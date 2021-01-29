@@ -1,6 +1,10 @@
 plugins {
     id 'java-library'
+    id 'maven-publish'
+    id "com.jfrog.bintray" version "1.8.4"    
 }
+
+apply from: "$rootDir/gradle/versioning.gradle"
 
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
@@ -25,4 +29,86 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+javadoc.failOnError = false
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives sourcesJar
+    archives javadocJar
+}
+
+def githubRepoUrl = "https://github.com/edigonzales/h2gis-custom-functions"
+def pomConfig = {
+    licenses {
+        license {
+            name "MIT License"
+            url "https://github.com/edigonzales/h2gis-custom-functions/blob/master/LICENSE"
+        }
+    }
+    developers {
+        developer {
+            id "edigonzales"
+            name "Stefan Ziegler"
+            email "stefan.ziegler@bd.so.ch"
+        }
+    }
+
+    scm {
+        url githubRepoUrl
+    }
+}
+
+publishing {
+    publications {
+        mavenPublication(MavenPublication) {
+            from components.java
+            artifact sourcesJar {
+                classifier "sources"
+            }
+            artifact javadocJar {
+                classifier "javadoc"
+            }
+            groupId project.group
+            artifactId 'h2gis-custom-functions'
+            version project.version
+            pom.withXml {
+                def root = asNode()
+                root.appendNode('description', 'Custom functions for h2gis')
+                root.appendNode('name', 'h2gis-custom-functions')
+                root.appendNode('url', githubRepoUrl)
+                root.children().last() + pomConfig
+            }
+        }
+    }
+}
+
+bintray {
+    user = System.env.bintrayUser
+    key = System.env.bintrayKey
+    publications = ['mavenPublication']
+    publish = true
+    
+    pkg {
+        repo = 'h2gis-custom-functions'
+        name = 'h2gis-custom-functions'
+        userOrg = 'sogis'
+        licenses = ['MIT']
+        labels = ['h2', 'h2gis', 'gis']        
+        vcsUrl = githubRepoUrl
+        version {
+            name = project.version
+            desc = project.version
+            released  = new Date()
+        }
+    }
 }
