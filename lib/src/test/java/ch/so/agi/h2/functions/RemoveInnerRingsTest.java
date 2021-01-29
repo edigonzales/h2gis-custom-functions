@@ -46,8 +46,5 @@ public class RemoveInnerRingsTest {
         String xtfFileName = new File("./src/test/data/bauzonengrenzen_fixed.xtf").getAbsolutePath();
         settings.setXtffile(xtfFileName);
         Ili2db.run(settings, null);
-        System.out.println("Hallo Welt.");
-        
     }
-
 }
